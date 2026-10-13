@@ -3,7 +3,7 @@ import time
 import pandas as pd
 import yfinance as yf
 
-# Expanded Nifty 200 / F&O universe sample (Add your full list here)
+# Expanded Nifty universe sample (Add your full list here)
 NIFTY_200_SYMBOLS = [
     "RELIANCE.NS",
     "TCS.NS",
@@ -27,7 +27,6 @@ NIFTY_200_SYMBOLS = [
     "ONGC.NS",
     "AXISBANK.NS",
     "KOTAKBANK.NS",
-    "TITAN.NS",
     "BAJAJFINSV.NS",
     "WIPRO.NS",
     "ULTRACEMCO.NS",
@@ -70,7 +69,12 @@ def calculate_nto(df, length=14, smooth=80):
 
 
 def scan_ticker(symbol):
-  results = {"Symbol": symbol.replace(".NS", "")}
+  clean_sym = symbol.replace(".NS", "")
+  results = {
+      "Symbol": clean_sym,
+      "TradingView": f"https://www.tradingview.com/chart/?symbol=NSE:{clean_sym}",
+  }
+
   for tf_name, tf_config in TIMEFRAMES.items():
     try:
       df = yf.download(
