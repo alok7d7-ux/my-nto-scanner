@@ -2,7 +2,7 @@ name: Run NTO Scanner
 
 on:
   schedule:
-    - cron: '30 3 * * 1-5' # Runs Mon-Fri at 3:30 AM UTC (Market hours prep)
+    - cron: '30 3 * * 1-5' # Runs Mon-Fri at 3:30 AM UTC
   workflow_dispatch: # Allows manual trigger from GitHub UI
 
 jobs:
@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: setup-python@v5
         with:
           python-version: '3.10'
 
@@ -29,6 +29,7 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git pull origin main --rebase || true
           git add nto_scan_results.csv
           git commit -m "Auto-update NTO scan results [skip ci]" || exit 0
-          git push
+          git push origin main
