@@ -7,8 +7,8 @@ st.set_page_config(
 
 st.title("📊 Normalized Trend Oscillator (NTO) Multi-TF Scanner")
 st.markdown(
-    "Scanning Nifty universe across **5m, 15m, 1h, and 1d** timeframes using"
-    " NTO(14, 80)."
+    "Scanning universe across **5m, 15m, 1h, and 1d** timeframes using"
+    " NTO(14, 80). Click any row's **TradingView link** to open the live chart."
 )
 
 
@@ -44,11 +44,27 @@ else:
   if signal_filter != "All":
     filtered_df = filtered_df[filtered_df["Signal"] == signal_filter]
 
-  st.metric(label="Total Stocks Scanned", value=len(df))
-  st.metric(label="Matching Filter", value=len(filtered_df))
+  col1, col2 = st.columns(2)
+  with col1:
+    st.metric(label="Total Stocks Scanned", value=len(df))
+  with col2:
+    st.metric(label="Matching Filter Count", value=len(filtered_df))
 
-  # Display Table
-  st.dataframe(filtered_df, use_container_width=True, hide_index=True)
+  st.markdown("---")
+
+  # Display Interactive Table with Clickable TradingView Links
+  st.dataframe(
+      filtered_df,
+      column_config={
+          "TradingView": st.column_config.LinkColumn(
+              "TradingView Chart",
+              help="Click to open direct chart on TradingView",
+              display_text="📈 Open Chart",
+          )
+      },
+      use_container_width=True,
+      hide_index=True,
+  )
 
   if st.button("🔄 Refresh Data"):
     st.cache_data.clear()
