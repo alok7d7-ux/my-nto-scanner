@@ -2,8 +2,10 @@ name: Run NTO Scanner
 
 on:
   schedule:
-    - cron: '30 3 * * 1-5' # Runs Mon-Fri at 3:30 AM UTC
-  workflow_dispatch: # Allows manual trigger from GitHub UI
+    # Runs every 15 minutes from 9:00 AM to 3:30 PM IST (Mon-Fri)
+    # Cron uses UTC time: 3:30 AM to 10:00 AM UTC = 9:00 AM to 3:30 PM IST
+    - cron: '*/15 3-10 * * 1-5'
+  workflow_dispatch: # Allows manual trigger anytime from GitHub
 
 jobs:
   run-scanner:
@@ -31,5 +33,5 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git pull origin main --rebase || true
           git add nto_scan_results.csv
-          git commit -m "Auto-update NTO scan results [skip ci]" || exit 0
+          git commit -m "Auto-update live NTO scan results [skip ci]" || exit 0
           git push origin main
