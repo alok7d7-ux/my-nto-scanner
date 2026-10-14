@@ -3,7 +3,7 @@ import time
 import pandas as pd
 import yfinance as yf
 
-# Expanded Nifty universe sample (Add your full list here)
+# Nifty universe sample (You can expand this list as needed)
 NIFTY_200_SYMBOLS = [
     "RELIANCE.NS",
     "TCS.NS",
@@ -48,7 +48,7 @@ NTO_SMOOTH = 80
 
 
 def calculate_nto(df, length=14, smooth=80):
-  """Computes the Normalized Trend Oscillator values."""
+  """Computes the Normalized Trend Oscillator values efficiently."""
   if df is None or len(df) < max(length, smooth):
     return None
 
@@ -77,11 +77,13 @@ def scan_ticker(symbol):
 
   for tf_name, tf_config in TIMEFRAMES.items():
     try:
+      # Download data with threading and minimal logging
       df = yf.download(
           symbol,
           period=tf_config["period"],
           interval=tf_config["interval"],
           progress=False,
+          threads=False,  # Disable inner threading to avoid conflict with outer ThreadPoolExecutor
       )
       if isinstance(df.columns, pd.MultiIndex):
         df.columns = df.columns.get_level_values(0)
@@ -89,7 +91,7 @@ def scan_ticker(symbol):
     except:
       results[tf_name] = None
 
-  # Determine Multi-Timeframe Alignment Signal (Threshold > 50 / < 50)
+  # Determine Multi-Timeframe Alignment Signal
   try:
     vals = [results["5m"], results["15m"], results["1h"], results["1d"]]
     if all(v is not None for v in vals):
@@ -108,10 +110,12 @@ def scan_ticker(symbol):
 
 
 def run_scanner():
-  print(f"🚀 Scanning {len(NIFTY_200_SYMBOLS)} symbols across Multi-TF...")
+  print(f"🚀 High-speed scan starting for {len(NIFTY_200_SYMBOLS)} symbols...")
+  start_time = time.time()
   scan_results = []
 
-  with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+  # Increased max_workers to 25 for blazing-fast concurrent downloads
+  with concurrent.futures.ThreadPoolExecutor(max_workers=25) as executor:
     futures = [
         executor.submit(scan_ticker, sym) for sym in NIFTY_200_SYMBOLS
     ]
@@ -119,9 +123,11 @@ def run_scanner():
       scan_results.append(future.result())
 
   df_results = pd.DataFrame(scan_results)
-  # Save to CSV for Streamlit consumption
   df_results.to_csv("nto_scan_results.csv", index=False)
-  print("✅ Scan complete. Saved to nto_scan_results.csv")
+  print(
+      f"✅ High-speed scan complete in {round(time.time() - start_time, 2)}"
+      " seconds. Saved to nto_scan_results.csv"
+  )
 
 
 if __name__ == "__main__":
