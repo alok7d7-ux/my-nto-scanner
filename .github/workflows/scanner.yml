@@ -32,7 +32,9 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git stash || true
           git pull origin main --rebase || true
+          git stash pop || true
           git add nto_scan_results.csv
           git commit -m "Auto-update live NTO scan results [skip ci]" || exit 0
           git push origin main
