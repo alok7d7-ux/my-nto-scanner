@@ -7,12 +7,13 @@ st.set_page_config(
 
 st.title("📊 Normalized Trend Oscillator (NTO) Multi-TF Scanner")
 st.markdown(
-    "Scanning universe across **5m, 15m, 1h, and 1d** timeframes using"
-    " NTO(14, 80). Click any row's **TradingView link** to open the live chart."
+    "Scanning live universe across **5m, 15m, 1h, and 1d** timeframes using"
+    " NTO(14, 80). Click any row's **TradingView Chart** link to open the live"
+    " chart."
 )
 
 
-@st.cache_data(ttl=600)  # Refresh data cache every 10 mins
+@st.cache_data(ttl=300)
 def load_data():
   try:
     return pd.read_csv("nto_scan_results.csv")
@@ -23,12 +24,8 @@ def load_data():
 df = load_data()
 
 if df.empty:
-  st.warning(
-      "⚠️ No scan results found yet. Run `scanner.py` or wait for the GitHub"
-      " Action to run."
-  )
+  st.warning("⚠️ No scan results found yet. Please run the scanner action.")
 else:
-  # Sidebar Filters
   st.sidebar.header("Filter Results")
   signal_filter = st.sidebar.selectbox(
       "Filter by Signal",
@@ -52,7 +49,6 @@ else:
 
   st.markdown("---")
 
-  # Display Interactive Table with Clickable TradingView Links
   st.dataframe(
       filtered_df,
       column_config={
