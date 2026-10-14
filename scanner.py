@@ -3,7 +3,7 @@ import time
 import pandas as pd
 import yfinance as yf
 
-# Nifty universe sample (You can expand this list as needed)
+# Expanded Nifty universe list
 NIFTY_200_SYMBOLS = [
     "RELIANCE.NS",
     "TCS.NS",
@@ -34,6 +34,21 @@ NIFTY_200_SYMBOLS = [
     "GRASIM.NS",
     "JSWSTEEL.NS",
     "TATASTEEL.NS",
+    "POWERGRID.NS",
+    "M&M.NS",
+    "TECHM.NS",
+    "COALINDIA.NS",
+    "INDUSINDBK.NS",
+    "BPCL.NS",
+    "TATACONSUM.NS",
+    "HEROMOTOCO.NS",
+    "DIVISLAB.NS",
+    "BRITANNIA.NS",
+    "EICHERMOT.NS",
+    "APOLLOHOSP.NS",
+    "UPL.NS",
+    "SBILIFE.NS",
+    "HDFCLIFE.NS",
 ]
 
 TIMEFRAMES = {
@@ -48,7 +63,7 @@ NTO_SMOOTH = 80
 
 
 def calculate_nto(df, length=14, smooth=80):
-  """Computes the Normalized Trend Oscillator values efficiently."""
+  """Computes Normalized Trend Oscillator values."""
   if df is None or len(df) < max(length, smooth):
     return None
 
@@ -77,13 +92,12 @@ def scan_ticker(symbol):
 
   for tf_name, tf_config in TIMEFRAMES.items():
     try:
-      # Download data with threading and minimal logging
       df = yf.download(
           symbol,
           period=tf_config["period"],
           interval=tf_config["interval"],
           progress=False,
-          threads=False,  # Disable inner threading to avoid conflict with outer ThreadPoolExecutor
+          threads=False,
       )
       if isinstance(df.columns, pd.MultiIndex):
         df.columns = df.columns.get_level_values(0)
@@ -114,7 +128,6 @@ def run_scanner():
   start_time = time.time()
   scan_results = []
 
-  # Increased max_workers to 25 for blazing-fast concurrent downloads
   with concurrent.futures.ThreadPoolExecutor(max_workers=25) as executor:
     futures = [
         executor.submit(scan_ticker, sym) for sym in NIFTY_200_SYMBOLS
