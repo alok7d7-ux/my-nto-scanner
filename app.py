@@ -26,7 +26,8 @@ df = load_data()
 if df.empty:
   st.warning("⚠️ No scan results found yet. Please run the scanner action.")
 else:
-  st.sidebar.header("Filter Results")
+  # Sidebar Controls
+  st.sidebar.header("Filters & Sorting")
   signal_filter = st.sidebar.selectbox(
       "Filter by Signal",
       [
@@ -37,9 +38,24 @@ else:
       ],
   )
 
+  # Sorting Options
+  sort_column = st.sidebar.selectbox(
+      "Sort By", ["Symbol", "5m", "15m", "1h", "1d", "Signal"]
+  )
+  sort_order = st.sidebar.radio(
+      "Direction", ["Highest first ⬇️", "Lowest first ⬆️"]
+  )
+  ascending_bool = True if "Lowest" in sort_order else False
+
   filtered_df = df.copy()
   if signal_filter != "All":
     filtered_df = filtered_df[filtered_df["Signal"] == signal_filter]
+
+  # Apply sorting
+  if sort_column in filtered_df.columns:
+    filtered_df = filtered_df.sort_values(
+        by=sort_column, ascending=ascending_bool
+    )
 
   col1, col2 = st.columns(2)
   with col1:
@@ -49,6 +65,7 @@ else:
 
   st.markdown("---")
 
+  # Display Interactive Table
   st.dataframe(
       filtered_df,
       column_config={
